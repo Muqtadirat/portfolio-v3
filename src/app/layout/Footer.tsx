@@ -1,0 +1,82 @@
+'use client';
+
+import { EmailIcon, GithubIcon, LinkedinIcon } from '@/assets';
+import { Form, useTheme } from '@/components';
+
+import Link from 'next/link';
+import { useState } from 'react';
+
+interface IconProps {
+  fill: string;
+}
+
+interface SocialsProps {
+  href: string;
+  Icon: React.FC<IconProps>;
+}
+
+const Footer = () => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { resolvedTheme } = useTheme();
+
+  const defaultFill = resolvedTheme === 'dark' ? '#e8e8e8' : '#141414';
+  const hoverFill = resolvedTheme === 'dark' ? '#a0a0a0' : '#979999';
+
+  const socials: SocialsProps[] = [
+    {
+      href: 'mailto:muqtadirat.yussuff.it@gmail.com',
+      Icon: EmailIcon,
+    },
+    {
+      href: 'https://www.linkedin.com/in/muqtadirat-yussuff',
+      Icon: LinkedinIcon,
+    },
+    {
+      href: 'https://github.com/Muqtadirat',
+      Icon: GithubIcon,
+    },
+  ];
+
+  return (
+    <footer
+      id="contact"
+      className="px-6 lg:px-12 pb-12 pt-8 lg:pb-16 xl:pt-12 text-text-default"
+    >
+      <Form />
+
+      <section className="xl:px-15 mt-10 lg:mt-20 xl:mt-32 flex justify-between lg:text-[2rem] uppercase">
+        <h4>Muqtadirat Yussuff</h4>
+        <h4>Frontend Developer</h4>
+        <div className="flex gap-5 items-center">
+          {socials.map(({ href, Icon }, index) => {
+            const isEmail = href.startsWith('mailto:');
+            const fill = hoveredIndex === index ? hoverFill : defaultFill;
+
+            return isEmail ? (
+              <a
+                href={href}
+                key={index}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <Icon fill={fill} />
+              </a>
+            ) : (
+              <Link
+                href={href}
+                key={index}
+                target="_blank"
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <Icon fill={fill} />
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+    </footer>
+  );
+};
+
+export default Footer;
