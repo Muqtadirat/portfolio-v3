@@ -10,7 +10,7 @@ const WorkHistory = () => {
 
   return (
     <motion.div
-      className="mt-16 lg:mt-40"
+      className="mt-10 lg:mt-40"
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.65 }}

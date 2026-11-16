@@ -36,6 +36,7 @@ import {
 import { useTheme } from '@/components';
 
 import WorkHistory from './History';
+import RippleField from './RippleField';
 import SoundWave from './SoundWave';
 import Work from '../work/Index';
 
@@ -142,15 +143,15 @@ const Statement = () => {
     <>
       <section
         ref={ref}
-        className="snap-start min-h-[100svh] flex flex-col justify-center py-12"
+        className="lg:snap-start lg:min-h-[100svh] flex flex-col lg:justify-center pt-8 pb-4 lg:py-12"
       >
-        <p className="font-inconsolata text-xs uppercase tracking-[0.25em] text-accent mb-5 lg:mb-8">
+        <p className="font-inconsolata text-xs uppercase tracking-[0.25em] text-accent mb-4 lg:mb-8">
           About
         </p>
-        <h2 className="font-display font-bold uppercase tracking-tight text-[clamp(2.5rem,6.5vw,7.25rem)] leading-[0.95] w-full">
+        <h2 className="font-display font-bold uppercase tracking-tight text-[clamp(2rem,8vw,7.25rem)] leading-[0.95] w-full break-words">
           {statementWords.map(({ word, chars }, wi) => (
             <span key={`${word}-${wi}`}>
-              <span className="inline-block whitespace-nowrap">
+              <span className="inline sm:inline-block sm:whitespace-nowrap">
                 {chars.map(({ char, index }) => (
                   <Char
                     key={index}
@@ -168,7 +169,7 @@ const Statement = () => {
         </h2>
       </section>
 
-      <div className="grid lg:grid-cols-[120px_1fr] gap-4 lg:gap-12 border-t border-border-default pt-8 mb-8">
+      <div className="grid lg:grid-cols-[120px_1fr] gap-3 lg:gap-12 border-t border-border-default pt-6 lg:pt-8 mb-4 lg:mb-8">
         <p className="font-inconsolata text-xs uppercase tracking-[0.2em] text-text-subdued">
           Because
         </p>
@@ -198,6 +199,7 @@ const Statement = () => {
 
 const Home = () => {
   const [locIndex, setLocIndex] = React.useState(0);
+  const [isDesktop, setIsDesktop] = React.useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
@@ -208,8 +210,16 @@ const Home = () => {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
   return (
-    <div className="snap-y snap-mandatory">
+    <div className="lg:snap-y lg:snap-mandatory">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -236,9 +246,9 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <header className="mt-6 lg:mt-12.5 flex flex-col lg:flex-row gap-6 xl:gap-0 justify-between snap-start">
-        <div className="lg:space-y-45 lg:w-1/2 lg:pr-8">
-          <SoundWave />
+      <header className="mt-6 lg:mt-12.5 flex flex-col lg:flex-row gap-5 lg:gap-6 xl:gap-0 justify-between lg:snap-start">
+        <div className="order-2 lg:order-1 lg:space-y-45 lg:w-1/2 lg:pr-8">
+          {isDesktop ? <SoundWave /> : <RippleField />}
 
           <motion.div
             animate={{ y: [0, 10, 0] }}
@@ -252,7 +262,7 @@ const Home = () => {
           </motion.div>
         </div>
 
-        <div className="lg:w-1/2 lg:mt-[5.313rem]">
+        <div className="order-1 lg:order-2 lg:w-1/2 lg:mt-[5.313rem]">
           <motion.p
             className="font-inconsolata text-xs uppercase tracking-[0.2em] text-accent mb-3"
             initial={{ opacity: 0 }}
@@ -262,7 +272,7 @@ const Home = () => {
             Portfolio 2026
           </motion.p>
           <motion.h1
-            className="font-display font-bold uppercase tracking-tight text-5xl lg:text-7xl xl:text-[7.5rem] lg:leading-[0.9]"
+            className="font-display font-bold uppercase tracking-tight text-4xl sm:text-5xl lg:text-7xl xl:text-[7.5rem] lg:leading-[0.9]"
             variants={fadeUp}
             initial="hidden"
             animate="show"
@@ -288,6 +298,7 @@ const Home = () => {
                     key={alt}
                     variants={iconVariant}
                     whileHover={{ scale: 1.15, rotate: -3 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <Image
                       src={isDark ? color : mono}
@@ -306,7 +317,7 @@ const Home = () => {
 
       <WorkHistory />
 
-      <div className="mt-16 lg:mt-28 space-y-2 snap-start">
+      <div className="mt-16 lg:mt-28 space-y-2 lg:snap-start">
         <motion.div
           className="flex items-end justify-between gap-4 border-y border-border-default py-4 lg:py-6"
           initial={{ opacity: 0, y: 24 }}
@@ -320,7 +331,7 @@ const Home = () => {
           </h4>
           <Link
             href="/work"
-            className="hidden lg:inline-flex items-center gap-2 font-inconsolata text-sm text-text-secondary hover:text-accent transition-colors shrink-0 mb-2"
+            className="inline-flex items-center gap-2 font-inconsolata text-xs sm:text-sm text-text-secondary hover:text-accent transition-colors shrink-0 mb-1 lg:mb-2"
           >
             View all
             <Image

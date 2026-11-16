@@ -10,7 +10,6 @@ const CustomCursor = () => {
   const springX = useSpring(mouseX, { stiffness: 500, damping: 32 });
   const springY = useSpring(mouseY, { stiffness: 500, damping: 32 });
 
-  // Lagging trail 
   const t1x = useSpring(mouseX, { stiffness: 90, damping: 22 });
   const t1y = useSpring(mouseY, { stiffness: 90, damping: 22 });
   const t2x = useSpring(mouseX, { stiffness: 55, damping: 20 });
@@ -28,8 +27,33 @@ const CustomCursor = () => {
   ];
 
   const [hovering, setHovering] = useState(false);
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
+    const fine = window.matchMedia('(pointer: fine)');
+    const hover = window.matchMedia('(hover: hover)');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const sync = () => {
+      setEnabled(fine.matches && hover.matches && !reduced.matches);
+    };
+    sync();
+
+    fine.addEventListener('change', sync);
+    hover.addEventListener('change', sync);
+    reduced.addEventListener('change', sync);
+    return () => {
+      fine.removeEventListener('change', sync);
+      hover.removeEventListener('change', sync);
+      reduced.removeEventListener('change', sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    document.documentElement.classList.add('cursor-none-root');
+
     const moveCursor = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
@@ -50,11 +74,14 @@ const CustomCursor = () => {
     document.addEventListener('mouseout', handleMouseOut);
 
     return () => {
+      document.documentElement.classList.remove('cursor-none-root');
       window.removeEventListener('mousemove', moveCursor);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseout', handleMouseOut);
     };
-  }, [mouseX, mouseY]);
+  }, [enabled, mouseX, mouseY]);
+
+  if (!enabled) return null;
 
   const rgb = '243,66,19';
   const ring = `rgba(${rgb},1)`;
