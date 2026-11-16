@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/png" sizes="32x32" href="/logo.svg" />
+        <link rel="icon" href="/logo.svg" type="image/svg+xml" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className={`font-roboto`}>
