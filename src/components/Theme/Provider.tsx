@@ -35,6 +35,28 @@ function applyThemeClass(resolved: ResolvedTheme) {
   root.classList.toggle('dark', resolved === 'dark');
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function runThemeTransition(update: () => void) {
+  const root = document.documentElement;
+  const canTransition =
+    typeof document.startViewTransition === 'function' &&
+    !prefersReducedMotion();
+
+  if (!canTransition) {
+    update();
+    return;
+  }
+
+  root.classList.add('theme-transition');
+  const transition = document.startViewTransition(update);
+  transition.finished.finally(() => {
+    root.classList.remove('theme-transition');
+  });
+}
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<ThemePreference>('system');
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
@@ -67,10 +89,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [theme]);
 
   const setTheme = useCallback((next: 'light' | 'dark') => {
-    localStorage.setItem(STORAGE_KEY, next);
-    setThemeState(next);
-    setResolvedTheme(next);
-    applyThemeClass(next);
+    runThemeTransition(() => {
+      localStorage.setItem(STORAGE_KEY, next);
+      setThemeState(next);
+      setResolvedTheme(next);
+      applyThemeClass(next);
+    });
   }, []);
 
   const toggleTheme = useCallback(() => {

@@ -3,12 +3,14 @@
 import { logo } from '@/assets';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import navLinks from './navLinks';
+import navLinks, { isNavActive } from './navLinks';
 import Hamburger from 'hamburger-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useLenis } from 'lenis/react';
 import { ThemeToggle, useTheme } from '@/components';
+import { useContactScroll, useHash } from '@/hooks';
 
 interface MobileNavProps {
   pathname: string;
@@ -16,12 +18,21 @@ interface MobileNavProps {
 
 const MobileNav: React.FC<MobileNavProps> = ({ pathname }) => {
   const [showMenu, setShowMenu] = useState(false);
+  
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+
   const lenis = useLenis();
+  const hash = useHash();
+  const goToContact = useContactScroll();
 
   const handleLinkClick = (href: string) => {
     setShowMenu(false);
+    if (href === '/#contact') {
+      // Allow menu close animation before scrolling
+      window.setTimeout(() => goToContact(), 50);
+      return;
+    }
     router.push(href);
   };
 
@@ -47,7 +58,14 @@ const MobileNav: React.FC<MobileNavProps> = ({ pathname }) => {
   return (
     <nav className="block lg:hidden fixed top-0 z-50 left-1/2 transform -translate-x-1/2 w-full max-w-[1232px] px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 rounded-sm bg-background-default text-text-default">
       <div className="flex justify-between items-center">
-        <Image src={logo} alt="Muqtadirat" className="dark:invert" />
+        <Link
+          href="/"
+          onClick={() => setShowMenu(false)}
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
+          aria-label="Home"
+        >
+          <Image src={logo} alt="Muqtadirat" className="dark:invert" />
+        </Link>
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
@@ -66,22 +84,27 @@ const MobileNav: React.FC<MobileNavProps> = ({ pathname }) => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: showMenu ? 1 : 0, y: showMenu ? 0 : -20 }}
           transition={{ duration: 0.4 }}
-          className="absolute top-full left-0 right-0 py-6 px-4 h-[100dvh] overflow-y-auto bg-background-default text-sm text-text-default font-semibold z-50 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+          className="absolute top-full left-0 right-0 py-8 px-4 h-[100dvh] overflow-y-auto bg-background-default text-text-default z-50 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
           style={{ pointerEvents: showMenu ? 'auto' : 'none' }}
           aria-hidden={!showMenu}
         >
-          <ul className="space-y-10">
-            {navLinks.map(({ title, href }) => (
-              <li key={title}>
-                <button
-                  type="button"
-                  onClick={() => handleLinkClick(href)}
-                  className={`hover:underline underline-offset-4 transition-all duration-500 ease-in-out cursor-pointer text-left ${pathname === href ? 'underline hover:no-underline' : 'no-underline'}`}
-                >
-                  {title}
-                </button>
-              </li>
-            ))}
+          <ul className="space-y-8 font-display text-3xl uppercase tracking-tight">
+            {navLinks.map(({ title, href }) => {
+              const active = isNavActive(href, pathname, hash);
+              return (
+                <li key={title}>
+                  <button
+                    type="button"
+                    onClick={() => handleLinkClick(href)}
+                    className={`text-left w-full py-1 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm ${
+                      active ? 'text-accent' : 'text-text-default hover:text-accent'
+                    }`}
+                  >
+                    {title}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </motion.div>
       </div>

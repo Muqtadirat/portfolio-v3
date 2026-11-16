@@ -110,6 +110,59 @@ body {
   color: var(--color-text-default);
 }
 
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+
+@keyframes theme-content-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes theme-content-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+html.theme-transition::view-transition-old(root) {
+  mix-blend-mode: normal;
+  z-index: 1;
+  animation: theme-content-fade-out 0.22s ease-out forwards;
+}
+
+html.theme-transition::view-transition-new(root) {
+  mix-blend-mode: normal;
+  z-index: 2;
+  opacity: 0;
+  animation: theme-content-fade-in 0.32s ease-out 0.08s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition::view-transition-old(root),
+  html.theme-transition::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
 ::-webkit-scrollbar {
   display: none;
 }

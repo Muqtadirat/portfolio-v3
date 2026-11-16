@@ -148,10 +148,10 @@ const Statement = () => {
         <p className="font-inconsolata text-xs uppercase tracking-[0.25em] text-accent mb-4 lg:mb-8">
           About
         </p>
-        <h2 className="font-display font-bold uppercase tracking-tight text-[clamp(2rem,8vw,7.25rem)] leading-[0.95] w-full break-words">
+        <h2 className="font-display font-bold uppercase tracking-tight text-[clamp(1.75rem,7.2vw,7.25rem)] leading-[1.12] lg:leading-[0.95] w-full">
           {statementWords.map(({ word, chars }, wi) => (
             <span key={`${word}-${wi}`}>
-              <span className="inline sm:inline-block sm:whitespace-nowrap">
+              <span className="inline-block max-w-full whitespace-nowrap">
                 {chars.map(({ char, index }) => (
                   <Char
                     key={index}

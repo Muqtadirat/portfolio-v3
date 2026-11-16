@@ -10,10 +10,31 @@ import {
 } from '@/components';
 import { Analytics } from '@vercel/analytics/next';
 
+const siteUrl = 'https://muqtadirat.vercel.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Muqtadirat Yussuff | Frontend Developer',
   description:
-    "Muqtadirat Yussuff's frontend developer portfolio showcasing expertise in HTML, CSS, JavaScript, React, and more. Discover projects, skills, and experience in creating responsive and dynamic web applications.",
+    'Frontend developer portfolio — considered interfaces, sharp interactions, and code that lasts. React, Next.js, and more.',
+  openGraph: {
+    title: 'Muqtadirat Yussuff | Frontend Developer',
+    description:
+      'Frontend developer portfolio — considered interfaces, sharp interactions, and code that lasts.',
+    url: siteUrl,
+    siteName: 'Muqtadirat Yussuff',
+    type: 'website',
+    images: [{ url: '/logo.svg', alt: 'Muqtadirat' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Muqtadirat Yussuff | Frontend Developer',
+    description:
+      'Frontend developer portfolio — considered interfaces, sharp interactions, and code that lasts.',
+  },
+  icons: {
+    icon: [{ url: '/logo.svg', type: 'image/svg+xml' }],
+  },
 };
 
 const themeInitScript = `

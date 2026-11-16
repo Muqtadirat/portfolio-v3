@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 const Form = () => {
   const form = useRef<HTMLFormElement | null>(null);
+  const [sending, setSending] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     note: '',
@@ -23,12 +24,15 @@ const Form = () => {
 
   const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (sending) return;
 
     const parameters = {
       name: formData.name,
       note: formData.note,
       to_name: 'Muqtadirat',
     };
+
+    setSending(true);
 
     emailjs
       .send(
@@ -40,25 +44,19 @@ const Form = () => {
       .then(
         () => {
           toast.success('Thank you for reaching out!');
-
-          setTimeout(() => {
-            setFormData({
-              name: '',
-              note: '',
-            });
-            if (form.current) {
-              form.current.submit();
-            }
-          }, 4000);
+          setFormData({ name: '', note: '' });
+          form.current?.reset();
         },
         () => {
           toast.error('Email failed to send');
         },
       )
-      .catch((error: string) => console.log(error));
+      .catch((error: string) => console.log(error))
+      .finally(() => setSending(false));
   };
 
   const isDisabled =
+    sending ||
     !formData.name.trim() ||
     !formData.note.trim() ||
     formData.note.trim().length < 20;
@@ -72,7 +70,12 @@ const Form = () => {
         </span>
       </p>
 
-      <form ref={form} onSubmit={sendEmail} className="space-y-6 lg:space-y-8">
+      <form
+        ref={form}
+        onSubmit={sendEmail}
+        method="post"
+        className="space-y-6 lg:space-y-8"
+      >
         <div>
           <InputField
             type="text"
@@ -103,14 +106,14 @@ const Form = () => {
         <button
           type="submit"
           disabled={isDisabled}
-          className={`mt-6 lg:mt-10 py-3 px-4 rounded-lg font-semibold transition-all duration-500 ease-in-out
+          className={`mt-6 lg:mt-10 py-3 px-4 rounded-lg font-semibold transition-all duration-500 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background-default
     ${
       isDisabled
         ? 'bg-text-hovered text-background-default/40 cursor-not-allowed'
         : 'bg-accent text-background-default hover:bg-background-default hover:text-accent hover:outline-solid outline-2 outline-accent'
     }`}
         >
-          Send message
+          {sending ? 'Sending…' : 'Send message'}
         </button>
       </form>
     </div>

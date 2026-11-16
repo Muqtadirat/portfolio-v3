@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import DesktopNav from './DesktopNav';
 
 import Footer from './Footer';
+import HashScroll from './HashScroll';
 import MobileNav from './MobileNav';
 import { LoadingScreen } from '@/components';
 
@@ -17,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <LoadingScreen />
+      <HashScroll />
       <DesktopNav pathname={pathname} />
       <MobileNav pathname={pathname} />
       <main className="px-4 pt-6 mt-12 lg:mt-23.5 max-w-[1432px] mx-auto w-full">
