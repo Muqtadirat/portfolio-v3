@@ -2,7 +2,12 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Layout from './layout/Index';
 import { Toaster } from 'sonner';
-import { CustomCursor, PostHogProvider, ThemeProvider } from '@/components';
+import {
+  CustomCursor,
+  PostHogProvider,
+  SmoothScroll,
+  ThemeProvider,
+} from '@/components';
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
@@ -37,12 +42,14 @@ export default function RootLayout({
       <body className={`font-roboto`}>
         <PostHogProvider>
           <ThemeProvider>
-            <Toaster position="top-center" richColors closeButton />
-            <Layout>
-              <CustomCursor />
-              {children}
-              <Analytics />
-            </Layout>
+            <SmoothScroll>
+              <Toaster position="top-center" richColors closeButton />
+              <Layout>
+                <CustomCursor />
+                {children}
+                <Analytics />
+              </Layout>
+            </SmoothScroll>
           </ThemeProvider>
         </PostHogProvider>
       </body>

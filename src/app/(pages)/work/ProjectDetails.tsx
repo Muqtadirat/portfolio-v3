@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useLenis } from 'lenis/react';
 import projectDetails from './constants/projectDetails';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -24,8 +25,21 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   const [isImageLoading, setIsImageLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
+  const lenis = useLenis();
 
-  // Drive hint opacity via the DOM so scroll doesn't remount / re-render
+  useEffect(() => {
+    if (!isOpen) return;
+
+    lenis?.stop();
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      lenis?.start();
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen, lenis]);
+
   const updateScrollHint = useCallback(() => {
     const el = scrollRef.current;
     const hint = hintRef.current;
@@ -41,7 +55,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
     hint.style.opacity = String(Math.min(1, Math.max(0, remaining / 72)));
   }, []);
 
-  // Reset to first image when project changes
   useEffect(() => {
     setCurrentImageIndex(0);
     setIsImageLoading(true);
@@ -92,13 +105,26 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   return (
     <AnimatePresence>
       {isOpen && project && (
-        <motion.div
-          initial={{ y: '100%', opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: '100%', opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 bg-black text-white py-6 lg:py-8 px-6 lg:px-12 h-screen rounded-t-3xl"
-        >
+        <>
+          <motion.div
+            key="project-details-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="fixed inset-0 z-50 bg-black/25 dark:bg-white/12"
+            onClick={toggleDetails}
+            aria-hidden
+          />
+          <motion.div
+            key="project-details-sheet"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            data-lenis-prevent
+            className="fixed inset-0 z-50 bg-black text-white py-6 lg:py-8 px-6 lg:px-12 h-screen rounded-t-3xl overflow-hidden"
+          >
           <div className="flex items-center gap-5 lg:gap-0 lg:justify-between font-bricolage font-extrabold lg:text-[2rem]">
             <p className="max-w-2/3">{project.title}</p>
             <p>{project.year}</p>
@@ -113,7 +139,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             <div className="relative min-h-0">
               <div
                 ref={scrollRef}
-                className="flex flex-col justify-between overflow-y-auto max-h-[70vh] pr-2 pb-8"
+                data-lenis-prevent
+                className="flex flex-col justify-between overflow-y-auto overscroll-contain max-h-[70vh] pr-2 pb-8"
               >
                 <p className="mb-4 text-base lg:text-[2rem] font-medium leading-normal uppercase">
                   {project.description}
@@ -232,6 +259,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             </div>
           </div>
         </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

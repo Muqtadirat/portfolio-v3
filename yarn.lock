@@ -2602,6 +2602,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lenis@npm:^1.3.27":
+  version: 1.3.27
+  resolution: "lenis@npm:1.3.27"
+  peerDependencies:
+    "@nuxt/kit": ">=3.0.0"
+    react: ">=17.0.0"
+    vue: ">=3.0.0"
+  peerDependenciesMeta:
+    "@nuxt/kit":
+      optional: true
+    react:
+      optional: true
+    vue:
+      optional: true
+  checksum: 10c0/ce9dfc765727ef75f96433652bc02013e14e51dd0626b66c6ea26b367bb481931857585b1251c44498d89679961cf5232782c24bdfc04e06118adfceec6783d1
+  languageName: node
+  linkType: hard
+
 "levn@npm:^0.4.1":
   version: 0.4.1
   resolution: "levn@npm:0.4.1"
@@ -3180,6 +3198,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^12.1.1"
     framer-motion: "npm:^11.3.24"
     hamburger-react: "npm:^2.5.1"
+    lenis: "npm:^1.3.27"
     lottie-react: "npm:^2.4.1"
     next: "npm:14.2.4"
     postcss: "npm:^8"

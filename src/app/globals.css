@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
@@ -22,18 +24,17 @@
   --color-surface-disabled: #fafafa;
   --color-surface-icon: #141414;
 
+  --color-accent: #f34213;
+  --color-accent-muted: #ff6a3d;
+
   --font-roboto: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-display: 'Oswald', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-serif: 'Newsreader', 'Georgia', 'Times New Roman', serif;
   --font-bricolage: 'Bricolage Grotesque', 'Helvetica Neue', Helvetica, Arial,
     sans-serif;
   --font-inconsolata: 'Inconsolata', 'Courier New', Courier, monospace;
 }
 
-/*
-  Dark theme: Material-style elevation ladder.
-  Depth comes from lightness steps + hairline borders (shadows vanish on dark).
-  Base stays near #121212 — mid-grays like #222 compress contrast and look muddy.
-  Primary text ~87% white (not pure #fff) to avoid smear/vibration on dark.
-*/
 .dark {
   --color-text-default: #e8e8e8;
   --color-text-secondary: #a0a0a0;
@@ -50,16 +51,23 @@
   --color-surface-subdued: #1e1e1e;
   --color-surface-disabled: #121212;
   --color-surface-icon: #e8e8e8;
+
+  --color-accent: #f34213;
+  --color-accent-muted: #ff6a3d;
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+.unique-m {
+  font-family: var(--font-serif), 'Georgia', serif;
+  font-style: italic;
+  font-weight: 400;
+  display: inline-block;
+  position: relative;
+  left: -0.04em;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 0.85;
+}
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -71,7 +79,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -85,7 +93,6 @@ body {
   display: none;
 }
 
-/* For WebKit browsers like Chrome and Safari */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
