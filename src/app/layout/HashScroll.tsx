@@ -3,27 +3,27 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLenis } from 'lenis/react';
+import { scrollToContact } from '@/hooks/scrollToContact';
 
-/** Scroll to hash targets (e.g. /#contact) after client navigation. */
+
 const HashScroll = () => {
   const pathname = usePathname();
   const lenis = useLenis();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const hash = window.location.hash;
-    if (!hash) return;
+    if (window.location.hash !== '#contact') return;
 
-    const id = hash.slice(1);
-    const timer = window.setTimeout(() => {
-      if (lenis) {
-        lenis.scrollTo(hash, { offset: -24 });
-      } else {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 80);
+    let cancelled = false;
+    requestAnimationFrame(() => {
+      if (cancelled) return;
+      scrollToContact(lenis);
+    });
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      document.documentElement.classList.remove('programmatic-scroll');
+    };
   }, [pathname, lenis]);
 
   return null;

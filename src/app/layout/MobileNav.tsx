@@ -5,12 +5,10 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import navLinks, { isNavActive } from './navLinks';
 import Hamburger from 'hamburger-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useLenis } from 'lenis/react';
 import { ThemeToggle, useTheme } from '@/components';
-import { useContactScroll, useHash } from '@/hooks';
+import { useContactScroll, useHash, useSmoothNavigate } from '@/hooks';
 
 interface MobileNavProps {
   pathname: string;
@@ -18,22 +16,21 @@ interface MobileNavProps {
 
 const MobileNav: React.FC<MobileNavProps> = ({ pathname }) => {
   const [showMenu, setShowMenu] = useState(false);
-  
-  const router = useRouter();
   const { resolvedTheme } = useTheme();
-
   const lenis = useLenis();
   const hash = useHash();
   const goToContact = useContactScroll();
+  const { goHome, goTo } = useSmoothNavigate();
 
   const handleLinkClick = (href: string) => {
     setShowMenu(false);
-    if (href === '/#contact') {
-      // Allow menu close animation before scrolling
-      window.setTimeout(() => goToContact(), 50);
-      return;
-    }
-    router.push(href);
+    window.setTimeout(() => {
+      if (href === '#contact') {
+        goToContact();
+        return;
+      }
+      goTo(href);
+    }, 50);
   };
 
   useEffect(() => {
@@ -58,14 +55,17 @@ const MobileNav: React.FC<MobileNavProps> = ({ pathname }) => {
   return (
     <nav className="block lg:hidden fixed top-0 z-50 left-1/2 transform -translate-x-1/2 w-full max-w-[1232px] px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 rounded-sm bg-background-default text-text-default">
       <div className="flex justify-between items-center">
-        <Link
-          href="/"
-          onClick={() => setShowMenu(false)}
+        <button
+          type="button"
+          onClick={() => {
+            setShowMenu(false);
+            goHome();
+          }}
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
           aria-label="Home"
         >
           <Image src={logo} alt="Muqtadirat" className="dark:invert" />
-        </Link>
+        </button>
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
@@ -97,7 +97,9 @@ const MobileNav: React.FC<MobileNavProps> = ({ pathname }) => {
                     type="button"
                     onClick={() => handleLinkClick(href)}
                     className={`text-left w-full py-1 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm ${
-                      active ? 'text-accent' : 'text-text-default hover:text-accent'
+                      active
+                        ? 'text-accent'
+                        : 'text-text-default hover:text-accent'
                     }`}
                   >
                     {title}

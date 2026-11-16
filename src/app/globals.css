@@ -103,6 +103,20 @@ html {
   scroll-behavior: auto;
 }
 
+
+html.programmatic-scroll .lg\:snap-y,
+html.programmatic-scroll .lg\:snap-mandatory,
+html.programmatic-scroll [class*='snap-y'],
+html.programmatic-scroll [class*='snap-mandatory'] {
+  scroll-snap-type: none !important;
+}
+
+html.programmatic-scroll [class*='snap-start'],
+html.programmatic-scroll [class*='snap-center'],
+html.programmatic-scroll [class*='snap-align'] {
+  scroll-snap-align: none !important;
+}
+
 body {
   height: 100vh;
   overflow-x: hidden;

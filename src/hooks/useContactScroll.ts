@@ -1,30 +1,21 @@
 'use client';
 
 import { useCallback } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useLenis } from 'lenis/react';
+import { scrollToContact } from './scrollToContact';
 
 const useContactScroll = () => {
   const pathname = usePathname();
-  const router = useRouter();
   const lenis = useLenis();
 
   const goToContact = useCallback(() => {
-    if (pathname === '/') {
-      window.history.replaceState(null, '', '/#contact');
-      window.dispatchEvent(new Event('hashchange'));
-      if (lenis) {
-        lenis.scrollTo('#contact', { offset: -24 });
-      } else {
-        document
-          .getElementById('contact')
-          ?.scrollIntoView({ behavior: 'smooth' });
-      }
-      return;
-    }
-
-    router.push('/#contact');
-  }, [pathname, router, lenis]);
+    const path = pathname || '/';
+    // Footer #contact exists on every page — stay on current route
+    window.history.replaceState(null, '', `${path}#contact`);
+    window.dispatchEvent(new Event('hashchange'));
+    scrollToContact(lenis);
+  }, [pathname, lenis]);
 
   return goToContact;
 };
