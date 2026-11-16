@@ -65,8 +65,11 @@ const Form = () => {
 
   return (
     <div className="max-w-[1000px] mx-auto">
-      <p className="mx-auto text-center text-3xl lg:text-[5.5rem] max-w-xs lg:max-w-full lg:leading-[100px] font-bricolage font-extrabold mb-9 mt-10 lg:mb-14">
-        Talk to me about a project and let’s do great work
+      <p className="mx-auto text-center text-3xl lg:text-[5.5rem] max-w-xs lg:max-w-full lg:leading-[0.95] font-display font-bold uppercase tracking-tight mb-9 mt-10 lg:mb-14">
+        Talk to me about a project and let’s do{' '}
+        <span className="text-accent italic font-medium normal-case tracking-normal">
+          great work
+        </span>
       </p>
 
       <form ref={form} onSubmit={sendEmail} className="space-y-6 lg:space-y-8">
@@ -104,7 +107,7 @@ const Form = () => {
     ${
       isDisabled
         ? 'bg-text-hovered text-background-default/40 cursor-not-allowed'
-        : 'bg-text-default text-background-default hover:bg-background-default hover:text-text-default hover:outline-solid outline-2 outline-text-default'
+        : 'bg-accent text-background-default hover:bg-background-default hover:text-accent hover:outline-solid outline-2 outline-accent'
     }`}
         >
           Send message

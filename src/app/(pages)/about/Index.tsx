@@ -43,19 +43,26 @@ const About = () => {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <>
-      <div className="flex flex-col justify-center items-center gap-4 lg:gap-10">
-        {/* <h1 className="font-bricolage font-extrabold text-3xl lg:text-[149px] lg:leading-none max-w-[800px]">
-          Passionate Frontend Developer
-        </h1> */}
+    <div className="pb-8">
+      <div className="relative mb-12 lg:mb-20">
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+          className="font-serif italic text-accent text-xl lg:text-3xl mb-2 lg:mb-0 lg:absolute lg:left-0 lg:top-2"
+        >
+          about
+        </motion.p>
 
-        <div ref={ref} className="w-full lg:w-[831px] h-auto">
+        <div
+          ref={ref}
+          className="w-full max-w-[831px] mx-auto h-auto text-text-default"
+        >
           <svg
             width="100%"
             viewBox="0 0 831 416"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* M */}
             <motion.path
               d="M 100 320 L 100 100 L 240 220 L 380 100 L 380 320"
               fill="none"
@@ -69,19 +76,17 @@ const About = () => {
               custom={0.1}
             />
 
-            {/* dot */}
             <motion.circle
               cx="420"
               cy="318"
               r="12"
-              fill="currentColor"
+              className="fill-accent"
               variants={fadeVariants}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
               custom={1.6}
             />
 
-            {/* Y */}
             <motion.path
               d="M 500 100 L 630 240 L 760 100 M 630 240 L 630 320"
               fill="none"
@@ -95,7 +100,6 @@ const About = () => {
               custom={1.9}
             />
 
-            {/* subtitle */}
             <motion.text
               x="415"
               y="395"
@@ -127,25 +131,57 @@ const About = () => {
             </motion.text>
           </svg>
         </div>
-
-        <div className="space-y-3 lg:space-y-6 max-w-[771px]">
-          <p className="uppercase font-medium text-lg lg:text-[2rem] lg:leading-snug">
-            I am a frontend developer with 4 years of experience building
-            production applications across fintech, e-commerce, and business
-            software. I care about the details, how things look, how they feel,
-            and how well they hold up as a product grows.
-          </p>
-          <p className="lg:text-xl">
-            I have spent most of my career working in small teams and startups,
-            owning features end-to-end and solving problems that go beyond just
-            writing code. Outside of work I am into art, gaming, anime, and
-            reading, which probably explains why I care so much about the
-            experience side of what I build.
-          </p>
-        </div>
       </div>
+
+      <section className="grid lg:grid-cols-12 gap-8 lg:gap-6 items-start mb-6 lg:mb-10">
+        <motion.h2
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-8%' }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-5 font-display font-bold uppercase tracking-tight text-4xl lg:text-[4.5rem] xl:text-[5.25rem] leading-[0.9]"
+        >
+          Frontend
+          <br />
+          developer
+          <br />
+          <span className="text-accent">with a soft</span>
+          <br />
+          spot for
+          <br />
+          craft
+        </motion.h2>
+
+        <div className="lg:col-span-7 lg:pt-4 space-y-6 lg:space-y-8 lg:pl-6 xl:pl-12">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-8%' }}
+            transition={{ duration: 0.55, delay: 0.08 }}
+            className="font-serif text-xl lg:text-[1.85rem] leading-[1.4] text-text-default"
+          >
+            Four years building production apps across fintech, e-commerce, and
+            business software. I care about the details: how things look, how
+            they feel, and how well they hold up as a product grows.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-8%' }}
+            transition={{ duration: 0.55, delay: 0.16 }}
+            className="font-serif text-base lg:text-lg leading-[1.75] text-text-secondary max-w-[36rem] lg:ml-auto"
+          >
+            Most of my career has been in small teams and startups, owning
+            features end to end and solving problems that go beyond writing
+            code. Outside of work I am into art, gaming, anime, and reading,
+            which probably explains why I care so much about the experience
+            side of what I build.
+          </motion.p>
+        </div>
+      </section>
+
       <Hobbies />
-    </>
+    </div>
   );
 };
 
