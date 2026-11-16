@@ -3,20 +3,57 @@
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-import { useTheme } from './Theme';
-
 const CustomCursor = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springX = useSpring(mouseX, { stiffness: 500, damping: 30 });
-  const springY = useSpring(mouseY, { stiffness: 500, damping: 30 });
+  const springX = useSpring(mouseX, { stiffness: 500, damping: 32 });
+  const springY = useSpring(mouseY, { stiffness: 500, damping: 32 });
+
+  const t1x = useSpring(mouseX, { stiffness: 90, damping: 22 });
+  const t1y = useSpring(mouseY, { stiffness: 90, damping: 22 });
+  const t2x = useSpring(mouseX, { stiffness: 55, damping: 20 });
+  const t2y = useSpring(mouseY, { stiffness: 55, damping: 20 });
+  const t3x = useSpring(mouseX, { stiffness: 35, damping: 18 });
+  const t3y = useSpring(mouseY, { stiffness: 35, damping: 18 });
+  const t4x = useSpring(mouseX, { stiffness: 22, damping: 16 });
+  const t4y = useSpring(mouseY, { stiffness: 22, damping: 16 });
+
+  const trail = [
+    { x: t1x, y: t1y, size: 9, opacity: 0.32 },
+    { x: t2x, y: t2y, size: 7, opacity: 0.24 },
+    { x: t3x, y: t3y, size: 5, opacity: 0.16 },
+    { x: t4x, y: t4y, size: 4, opacity: 0.1 },
+  ];
 
   const [hovering, setHovering] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
+    const fine = window.matchMedia('(pointer: fine)');
+    const hover = window.matchMedia('(hover: hover)');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const sync = () => {
+      setEnabled(fine.matches && hover.matches && !reduced.matches);
+    };
+    sync();
+
+    fine.addEventListener('change', sync);
+    hover.addEventListener('change', sync);
+    reduced.addEventListener('change', sync);
+    return () => {
+      fine.removeEventListener('change', sync);
+      hover.removeEventListener('change', sync);
+      reduced.removeEventListener('change', sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    document.documentElement.classList.add('cursor-none-root');
+
     const moveCursor = (e: MouseEvent) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
@@ -24,14 +61,12 @@ const CustomCursor = () => {
 
     const handleMouseOver = (e: Event) => {
       const target = e.target as HTMLElement;
-      const linkOrButton = target.closest('a, button, [role="link"]');
-      if (linkOrButton) setHovering(true);
+      if (target.closest('a, button, [role="link"]')) setHovering(true);
     };
 
     const handleMouseOut = (e: Event) => {
       const target = e.target as HTMLElement;
-      const linkOrButton = target.closest('a, button, [role="link"]');
-      if (linkOrButton) setHovering(false);
+      if (target.closest('a, button, [role="link"]')) setHovering(false);
     };
 
     window.addEventListener('mousemove', moveCursor);
@@ -39,52 +74,50 @@ const CustomCursor = () => {
     document.addEventListener('mouseout', handleMouseOut);
 
     return () => {
+      document.documentElement.classList.remove('cursor-none-root');
       window.removeEventListener('mousemove', moveCursor);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseout', handleMouseOut);
     };
-  }, [mouseX, mouseY]);
+  }, [enabled, mouseX, mouseY]);
 
-  const ring = isDark ? 'rgba(232,232,232,1)' : 'rgba(0,0,0,1)';
-  const glow = isDark ? 'rgba(232,232,232,0.35)' : 'rgba(0,0,0,0.3)';
-  const trailFill = isDark ? 'rgba(232,232,232,0.12)' : 'rgba(0,0,0,0.1)';
-  const trailGlow = isDark ? 'rgba(232,232,232,0.2)' : 'rgba(0,0,0,0.15)';
+  if (!enabled) return null;
+
+  const rgb = '243,66,19';
+  const ring = `rgba(${rgb},1)`;
 
   return (
     <>
+      {trail.map(({ x, y, size, opacity }, i) => (
+        <motion.div
+          key={i}
+          className="fixed top-0 left-0 z-[9997] rounded-full pointer-events-none"
+          animate={{ opacity: hovering ? 0 : opacity }}
+          transition={{ duration: 0.2 }}
+          style={{
+            x,
+            y,
+            translateX: '-50%',
+            translateY: '-50%',
+            width: size,
+            height: size,
+            backgroundColor: `rgba(${rgb},1)`,
+          }}
+        />
+      ))}
+
       <motion.div
-        className="fixed top-0 left-0 z-[9999] w-5 h-5 rounded-full border-2 pointer-events-none"
+        className="fixed top-0 left-0 z-[9999] rounded-full border-2 pointer-events-none"
         animate={{
+          width: hovering ? 48 : 18,
+          height: hovering ? 48 : 18,
           borderColor: ring,
-          boxShadow: hovering ? `0 0 0 ${ring}` : `0 0 12px 2px ${glow}`,
+          backgroundColor: hovering ? `rgba(${rgb},0.12)` : 'rgba(0,0,0,0)',
         }}
-        transition={{
-          duration: hovering ? 0.15 : 0.45,
-          ease: hovering ? 'easeOut' : 'easeInOut',
-        }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
         style={{
           x: springX,
           y: springY,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-      />
-
-      <motion.div
-        className="fixed top-0 left-0 z-[9998] w-12 h-12 rounded-full pointer-events-none"
-        animate={{
-          backgroundColor: hovering ? 'rgba(0,0,0,0)' : trailFill,
-          boxShadow: hovering
-            ? '0 0 0 rgba(0,0,0,0)'
-            : `0 0 20px 6px ${trailGlow}`,
-        }}
-        transition={{
-          duration: hovering ? 0.2 : 0.5,
-          ease: 'easeInOut',
-        }}
-        style={{
-          x: mouseX,
-          y: mouseY,
           translateX: '-50%',
           translateY: '-50%',
         }}

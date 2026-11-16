@@ -1,9 +1,15 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  useScroll,
+  useTransform,
+  MotionValue,
+} from 'framer-motion';
 
 import {
   arrowDown,
@@ -30,10 +36,12 @@ import {
 import { useTheme } from '@/components';
 
 import WorkHistory from './History';
+import RippleField from './RippleField';
+import SoundWave from './SoundWave';
 import Work from '../work/Index';
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 48 },
   show: { opacity: 1, y: 0 },
 };
 
@@ -41,7 +49,7 @@ const staggerIcons = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.12,
     },
   },
 };
@@ -54,7 +62,12 @@ const iconVariant = {
 const techIcons = [
   { mono: htmlIcon, color: htmlColored, alt: 'HTML' },
   { mono: reactIcon, color: reactColored, alt: 'React' },
-  { mono: nextJsIcon, color: nextJsColored, alt: 'Next Js', invertInDark: true },
+  {
+    mono: nextJsIcon,
+    color: nextJsColored,
+    alt: 'Next Js',
+    invertInDark: true,
+  },
   { mono: cssIcon, color: cssColored, alt: 'CSS3' },
   { mono: tailwindIcon, color: tailwindColored, alt: 'Tailwind' },
   { mono: framerIcon, color: framerColored, alt: 'Framer motion' },
@@ -63,17 +76,132 @@ const techIcons = [
   { mono: cypressIcon, color: cypressColored, alt: 'Cypress' },
 ] as const;
 
-const Home = () => {
-  const [locIndex, setLocIndex] = React.useState(0);
+const locations = [
+  '{the internet}',
+  '{somewhere, on earth}',
+  '{03°22′N, 06°27′E}',
+];
+
+const STATEMENT =
+  'I make things for the web that feel good to use. Considered, sharp, and made to last';
+
+const statementWords = STATEMENT.split(' ').map((word, wi, arr) => {
+  const prior = arr.slice(0, wi).join('').length;
+  return {
+    word,
+    chars: word.split('').map((char, ci) => ({ char, index: prior + ci })),
+  };
+});
+const totalChars = STATEMENT.replace(/\s/g, '').length;
+
+const Char = ({
+  char,
+  index,
+  progress,
+  dim,
+  lit,
+}: {
+  char: string;
+  index: number;
+  progress: MotionValue<number>;
+  dim: string;
+  lit: string;
+}) => {
+  const start = (index / totalChars) * 0.82;
+  const mid = start + 0.05;
+  const end = start + 0.14;
+  const color = useTransform(
+    progress,
+    [start, mid, end],
+    [dim, '#f34213', lit],
+  );
+  const isM = char === 'M' || char === 'm';
+
+  return (
+    <motion.span
+      style={{ color }}
+      className={`inline-block ${isM ? 'unique-m' : ''}`}
+    >
+      {isM ? 'M' : char}
+    </motion.span>
+  );
+};
+
+const Statement = () => {
+  const ref = useRef<HTMLElement>(null);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const dim = isDark ? 'rgba(232,232,232,0.18)' : 'rgba(15,15,15,0.14)';
+  const lit = isDark ? '#e8e8e8' : '#0f0f0f';
 
-  const locations = [
-    '{the internet}',
-    '{somewhere, on earth}',
-    '{03°22′N, 06°27′E}',
-    // '{undefined}',
-  ];
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start 0.9', 'end 0.35'],
+  });
+
+  return (
+    <>
+      <section
+        ref={ref}
+        className="lg:snap-start lg:min-h-[100svh] flex flex-col lg:justify-center pt-8 pb-4 lg:py-12"
+      >
+        <p className="font-inconsolata text-xs uppercase tracking-[0.25em] text-accent mb-4 lg:mb-8">
+          About
+        </p>
+        <h2 className="font-display font-bold uppercase tracking-tight text-[clamp(2rem,8vw,7.25rem)] leading-[0.95] w-full break-words">
+          {statementWords.map(({ word, chars }, wi) => (
+            <span key={`${word}-${wi}`}>
+              <span className="inline sm:inline-block sm:whitespace-nowrap">
+                {chars.map(({ char, index }) => (
+                  <Char
+                    key={index}
+                    char={char}
+                    index={index}
+                    progress={scrollYProgress}
+                    dim={dim}
+                    lit={lit}
+                  />
+                ))}
+              </span>
+              {wi < statementWords.length - 1 ? ' ' : null}
+            </span>
+          ))}
+        </h2>
+      </section>
+
+      <div className="grid lg:grid-cols-[120px_1fr] gap-3 lg:gap-12 border-t border-border-default pt-6 lg:pt-8 mb-4 lg:mb-8">
+        <p className="font-inconsolata text-xs uppercase tracking-[0.2em] text-text-subdued">
+          Because
+        </p>
+        <div className="space-y-4 max-w-2xl">
+          <p className="text-base lg:text-xl text-text-secondary leading-relaxed">
+            Four years mostly in small teams and startups across fintech and
+            SaaS. Pixel-perfect where it matters, clean architecture where it
+            lasts.
+          </p>
+          <p className="text-base lg:text-xl leading-relaxed">
+            Interfaces where the detail work shows, interactions that feel
+            considered, layouts that just make sense, and code that holds up as
+            the product grows.
+          </p>
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-2 mt-4 text-sm font-display uppercase tracking-[0.15em] text-accent hover:opacity-70 transition-opacity"
+          >
+            More about me
+            <Image src={arrowUpRight} alt="" className="dark:invert w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const Home = () => {
+  const [locIndex, setLocIndex] = React.useState(0);
+  const [isDesktop, setIsDesktop] = React.useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -82,17 +210,27 @@ const Home = () => {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
   return (
-    <div className="snap-y snap-mandatory">
+    <div className="lg:snap-y lg:snap-mandatory">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="flex gap-2 items-center text-text-default"
+        className="flex gap-3 items-center text-text-default"
       >
-        <div className="rounded h-10 w-10 bg-surface-icon"></div>
+        <div className="rounded-sm h-10 w-10 bg-accent" />
         <div>
-          <p className="uppercase font-semibold">Muqtadirat Yussuff</p>
+          <p className="uppercase font-display font-semibold tracking-[0.08em] text-sm lg:text-base">
+            Muqtadirat Yussuff
+          </p>
           <AnimatePresence mode="wait">
             <motion.p
               key={locIndex}
@@ -108,34 +246,9 @@ const Home = () => {
         </div>
       </motion.div>
 
-      <header className="mt-4 lg:mt-12.5 flex flex-col lg:flex-row gap-6 xl:gap-0 justify-between snap-start">
-        <div className="lg:space-y-45 w-1/2">
-          {/* <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7 }}
-          >
-            <Image
-              src={checker}
-              alt="checkered placeholder"
-              className="h-[278px] w-[660px] hidden lg:block"
-            />
-          </motion.div> */}
-          <motion.div className="h-[278px] w-[480px] xl:w-[660px] hidden lg:flex items-center justify-center gap-2">
-            {Array.from({ length: 25 }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="w-4 bg-text-default rounded-full"
-                animate={{ height: ['40px', '140px', '40px'] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2,
-                  delay: i * 0.08,
-                  ease: 'easeInOut',
-                }}
-              />
-            ))}
-          </motion.div>
+      <header className="mt-6 lg:mt-12.5 flex flex-col lg:flex-row gap-5 lg:gap-6 xl:gap-0 justify-between lg:snap-start">
+        <div className="order-2 lg:order-1 lg:space-y-45 lg:w-1/2 lg:pr-8">
+          {isDesktop ? <SoundWave /> : <RippleField />}
 
           <motion.div
             animate={{ y: [0, 10, 0] }}
@@ -149,36 +262,34 @@ const Home = () => {
           </motion.div>
         </div>
 
-        <div className="lg:w-1/2 lg:mt-[5.313rem]">
+        <div className="order-1 lg:order-2 lg:w-1/2 lg:mt-[5.313rem]">
+          <motion.p
+            className="font-inconsolata text-xs uppercase tracking-[0.2em] text-accent mb-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Portfolio 2026
+          </motion.p>
           <motion.h1
-            className="font-bricolage font-extrabold text-4x lg:text-7xl xl:text-[149px] lg:leading-none"
+            className="font-display font-bold uppercase tracking-tight text-4xl sm:text-5xl lg:text-7xl xl:text-[7.5rem] lg:leading-[0.9]"
             variants={fadeUp}
             initial="hidden"
             animate="show"
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            Frontend Developer
+            Frontend
+            <br />
+            Developer
           </motion.h1>
 
           <motion.div
-            className="mt-3 lg:mt-5 space-y-4"
-            variants={fadeUp}
+            className="mt-5 lg:mt-8"
+            variants={staggerIcons}
             initial="hidden"
             animate="show"
-            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {/* <p className="lg:text-xl">
-              Right now I build software for the web using Next.js, React &
-              Typescript and I am exploring Express Js, Mongoose, Node.js
-            </p> */}
-            <div></div>
-
-            <motion.div
-              className="flex gap-2 lg:gap-4"
-              variants={staggerIcons}
-              initial="hidden"
-              animate="show"
-            >
+            <div className="flex flex-wrap gap-2 lg:gap-4">
               {techIcons.map(({ mono, color, alt, ...rest }) => {
                 const invertInDark =
                   'invertInDark' in rest && rest.invertInDark;
@@ -186,89 +297,50 @@ const Home = () => {
                   <motion.div
                     key={alt}
                     variants={iconVariant}
-                    whileHover={{ scale: 1.2, rotate: -3 }}
+                    whileHover={{ scale: 1.15, rotate: -3 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <Image
                       src={isDark ? color : mono}
                       alt={alt}
-                      className={
-                        isDark && invertInDark ? 'invert' : undefined
-                      }
+                      className={isDark && invertInDark ? 'invert' : undefined}
                     />
                   </motion.div>
                 );
               })}
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </header>
 
-      <motion.section
-        className="space-y-4 lg:space-y-6 snap-start lg:max-w-[771px] mt-4 lg:mt-12"
-        variants={fadeUp}
-        initial="hidden"
-        whileInView="show"
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        viewport={{ once: true }}
-      >
-        <p className="text-xl lg:text-[2rem] font-medium uppercase leading-snug">
-          I have 4 years of experience mostly working in small teams & startups
-          across fintech & SAAS industries where I applied “pixel perfect”
-          principles for aesthetic value and “clean code” architecture.
-        </p>
-        {/* <p className="lg:text-xl">
-          Passionate about web technologies and building products that
-          positively change the way humans do things. I like to create memorable
-          experience for human-computer interactions.
-        </p> */}
-        <p className="lg:text-xl">
-          I build things for the web that actually feel good to use. The kind of
-          interfaces where the detail work shows, interactions that feel
-          considered, layouts that just make sense, and code that holds up as
-          the product grows.
-        </p>
-        <Link
-          href="/about"
-          className="flex items-center gap-2 hover:opacity-50 transition-all duration-300 ease-in-out w-fit"
-        >
-          <p>More about me</p>
-          <motion.div
-            animate={{ x: [0, 5, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-          >
-            <Image
-              src={arrowUpRight}
-              alt="Arrow up right"
-              className="dark:invert"
-            />
-          </motion.div>
-        </Link>
-      </motion.section>
+      <Statement />
 
       <WorkHistory />
 
-      <div className="mt-6 lg:mt-22 space-y-2">
-        <motion.hr
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          transition={{ duration: 0.8 }}
-          className="origin-center border-border-default"
-        />
-        <motion.h4
-          className="text-3xl lg:text-[9.313rem] font-bricolage font-extrabold text-text-default"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="show"
+      <div className="mt-16 lg:mt-28 space-y-2 lg:snap-start">
+        <motion.div
+          className="flex items-end justify-between gap-4 border-y border-border-default py-4 lg:py-6"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
         >
-          My work
-        </motion.h4>
-        <motion.hr
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="origin-center border-border-default"
-        />
+          <h4 className="font-display font-bold uppercase tracking-tight text-4xl lg:text-[6rem] xl:text-[8rem] leading-none">
+            Selected
+            <span className="text-accent"> work</span>
+          </h4>
+          <Link
+            href="/work"
+            className="inline-flex items-center gap-2 font-inconsolata text-xs sm:text-sm text-text-secondary hover:text-accent transition-colors shrink-0 mb-1 lg:mb-2"
+          >
+            View all
+            <Image
+              src={arrowUpRight}
+              alt=""
+              className="dark:invert w-3.5 h-3.5"
+            />
+          </Link>
+        </motion.div>
         <Work />
       </div>
     </div>
